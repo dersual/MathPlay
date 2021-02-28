@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script
+      id="MathJax-script"
+      async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    ></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js" defer></script>
+
+    <title>Mathplay: A game of solving equations</title>
+
+    <!-- import the webpage's stylesheet -->
+    <link rel="stylesheet" href="/style.css" />
+
+    <!-- import the webpage's javascript file -->
+    <script src="/vue.js" defer></script>
+    <script src="/script.js" defer></script>
+  </head>
+  <body>
+    <div id="app">
+      <h1>MathPlay</h1>
+      <div class="theButtonContainer" v-if="tab == 'level-select'">
+        <div class="dropdown" v-for="button in [0,1,2,3,4]">
+        <button type ="button" class="mainButton dropbtn" v-bind:id="'button'+dropdowns[button].name">{{dropdowns[button].name}}</button>
+        <div class="dropdown-content" v-if="dropdowns[button].section">
+          <a v-for="sec in dropdowns[button].section"><span style="width: 100%" v-bind:id="'button'+sec">{{sec}}</span></a>
+        </div>
+        </div>
+      </div>
+      <div v-if="tab.startsWith('game')">
+        <button class="operationButton" style="position: absolute;margin: 0;left: 30px;top: 20px" onclick="switchTab('level-select')">Back</button>
+        <span style="font-size: 30px">Solve for x</span>
+        <p v-html="game.left.toString() + '=' + game.right.toString()" style="font-size: 50px"></p>
+      <table>
+        <p>
+        <button class="operationButton" onclick = "addBoth(1,0)">+1</button>
+      <button class="operationButton" onclick = "addBoth(-1,0)">-1</button>
+      <button class="operationButton" onclick = "addBoth(1,1)">+x</button>
+      <button class="operationButton" onclick = "addBoth(-1,1)">-x</button>
+      <button class="operationButton" onclick = "addBoth(1,2)" v-if="levelType == 3">+x<sup>2</sup></button>
+      <button class="operationButton" onclick = "addBoth(-1,2)" v-if="levelType == 3">-x<sup>2</sup></button>
+      <button class="operationButton" onclick = "multiplyBoth(1);"  v-if="levelType == 1">×{{game.mult}}</button>
+      <button class="operationButton" onclick = "multiplyBoth(-1)" v-if="levelType == 1">÷{{game.mult}}</button>
+      <button class="operationButton" onclick = "negative()">×-1</button>
+        </p>
+        <p>
+          <button class="operationButton" onclick="game.mult -= 1" v-if="game.mult !== 1&&levelType == 1" >Decrease Multiplication / Division</button>
+          <button class="operationButton" onclick="game.mult += 1"  v-if="levelType == 1">Increase Multiplication / Division</button>
+        </p>
+        <p v-if="levelType == 3">
+          <button class="operationButton" onclick="quadratic()">Use the Quadratic Formula!</button>
+        </p>
+      </table>
+        
+        <p v-if="quadFail > 0">
+          <span style="font-size: 30px;color: #ff0000" id="quadFail">Get one side equal to 0 before using the quadratic formula!</span>
+        </p>
+        <p v-if="quadraticSolving" style="font-size: 30px">
+          <div v-if="quadraticSolving"><img src="https://cdn.glitch.com/bde0ecf6-58f3-44f3-be19-f3be371f901e%2Fe8d44e9d-9a5b-4819-bb20-580f7da287d5.image.png?v=1614522354955"></div>
+          <p v-if="quadraticSolving" style="font-size: 30px">Plug in the values of a, b, and c, and then evaluate!</p>
+          <ul v-if="quadraticSolving" style="font-size: 30px">
+          <li>A = <span id="quad1">0</span> (coefficient of x<sup>2</sup>) <button class="operationButton" style="margin-left: 30px;margin-right: 30px;" onclick="get('quad1').innerHTML++">+1</button><button class="operationButton"  onclick="get('quad1').innerHTML--">-1</button></li>
+          <li>B = <span id="quad2">0</span> (coefficient of x) <button class="operationButton" style="margin-left: 30px;margin-right: 30px;" onclick="get('quad2').innerHTML++">+1</button><button class="operationButton"  onclick="get('quad2').innerHTML--">-1</button></li>
+          <li>C = <span id="quad3">0</span> (constant term) <button class="operationButton" style="margin-left: 30px;margin-right: 30px;" onclick="get('quad3').innerHTML++">+1</button><button class="operationButton"  onclick="get('quad3').innerHTML--">-1</button></li>
+          </ul>
+          <button v-if="quadraticSolving" class="operationButton" onclick="submitQuad()">Submit values of a, b, c into the formula!</button>
+        </p>
+        <p v-if="win">
+          <span style="font-size: 30px;color: #008000">Problem Solved!</span>
+          <br>
+          <button class="operationButton" onclick = "switchTab('game',app.$data.levelType);app.$data.win=false">Go to the next problem</button>
+        </p>
+      </div>
+      
+      <!-- include the Glitch button to show what the webpage is about and
+          to make it easier for folks to view source and remix -->
+    </div>
+  </body>
+</html>
